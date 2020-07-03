@@ -2,7 +2,24 @@
     ViewData["Title"] = "Dashboard";
 }
 
+@section Scripts { 
+    <script>
+        $(document).ready(function () {
+            var options = {};
+            options.url = "Dashboard/GetTodaysConsumption";
+            options.type = "GET";
+            options.dataType = "json";
+            options.success = function (data) {
+                $("#todays-consumption").append(data);
+            };
+            options.error = function () {
+                $("#todays-consumption").html("Error while calling the API");
+            };
+            $.ajax(options);
+        });
+    </script>
+}
+
 <h1>@ViewData["Title"]</h1>
 
-<label>Today's Consumption (kWh): </label>
-<label>@Url.Action(nameof(EnergyPi.Web.Controllers.DashboardController.GetTodaysConsumption))</label>
+<label id="todays-consumption">Today's Consumption (kWh): </label>
