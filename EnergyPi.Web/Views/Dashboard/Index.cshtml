@@ -1,0 +1,8 @@
+﻿@{ 
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<label>Today's Consumption (kWh): </label>
+<label>@Url.Action(nameof(EnergyPi.Web.Controllers.DashboardController.GetTodaysConsumption))</label>
