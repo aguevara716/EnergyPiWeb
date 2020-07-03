@@ -1,4 +1,7 @@
 using EnergyPi.Web.Data;
+using EnergyPi.Web.DataServices;
+using EnergyPi.Web.Entities;
+using EnergyPi.Web.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -26,8 +29,20 @@ namespace EnergyPi.Web
 
             services.AddDbContext<DataDbContext>(options => options.UseMySql(Configuration.GetConnectionString("DataConnection")));
 
+            services = AddCustomServices(services);
+
             services.AddControllersWithViews();
             services.AddRazorPages();
+        }
+
+        private IServiceCollection AddCustomServices(IServiceCollection services)
+        {
+            services.AddTransient<IRepository<EnergyLogs>, DataRepository<EnergyLogs>>();
+            services.AddTransient<IRepository<WeatherLogs>, DataRepository<WeatherLogs>>();
+
+            services.AddTransient<IEnergyLogsDataService, EnergyLogsDataService>();
+
+            return services;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
