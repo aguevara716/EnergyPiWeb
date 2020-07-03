@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
-using EnergyPi.Web.Data;
+using EnergyPi.Web.DataServices;
+using EnergyPi.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,23 +9,37 @@ namespace EnergyPi.Web.Controllers
     [Authorize]
     public class DashboardController : Controller
     {
-        private readonly DataDbContext _dataDbContext;
+        // Dependencies
+        private readonly IEnergyLogsDataService _energyLogsDataService;
 
-        public DashboardController(DataDbContext dataDbContext)
+        // Constructors
+        public DashboardController(IEnergyLogsDataService energyLogsDataService)
         {
-            _dataDbContext = dataDbContext;
+            _energyLogsDataService = energyLogsDataService;
         }
 
+        // View Methods
         public IActionResult Index()
         {
             return View();
         }
 
+        // API Methods
         [HttpGet]
         public JsonResult GetTodaysConsumption()
         {
-            var todaysConsumption = _dataDbContext.EnergyLogs.Where(el => el.Timestamp.Date == DateTime.Now.Date).Sum(el => el.Delta);
+            var todaysConsumption = _energyLogsDataService.GetTotalConsumptionForDate(DateTime.Now);
             return Json(todaysConsumption);
+        }
+
+        [HttpGet]
+        public JsonResult GetThisMonthsConsumption()
+        {
+            var startDate = DateTimeExtensions.GetFirstDayOfMonth(DateTime.Now);
+            var endDate = DateTimeExtensions.GetFirstDayOfNextMonth(DateTime.Now);
+
+            var thisMonthsConsumption = _energyLogsDataService.GetTotalConsumptionForDateRange(startDate, endDate);
+            return Json(thisMonthsConsumption);
         }
 
     }
