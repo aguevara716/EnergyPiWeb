@@ -42,5 +42,12 @@ namespace EnergyPi.Web.Controllers
             return Json(thisMonthsConsumption);
         }
 
+        [HttpGet]
+        public JsonResult GetTimestampOfLastRecord()
+        {
+            var lastTimestamp = _energyLogsDataService.GetLastBroadcastFromDate(DateTime.Now);
+            return Json(lastTimestamp);
+        }
+
     }
 }

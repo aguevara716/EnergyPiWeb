@@ -21,6 +21,9 @@ namespace EnergyPi.Web.DataServices
         // Get Records
         IQueryable<EnergyLogs> GetRecordsForDate(DateTime date);
         IQueryable<EnergyLogs> GetRecordsForDateRange(DateTime startDate, DateTime endDate);
+
+        // Get last broadcast
+        EnergyLogs GetLastBroadcastFromDate(DateTime dateTime);
     }
 
     public class EnergyLogsDataService : IEnergyLogsDataService
@@ -76,6 +79,15 @@ namespace EnergyPi.Web.DataServices
         {
             var records = _energyLogsRepository.Get(el => el.Timestamp.Date >= startDate.Date && el.Timestamp.Date < endDate.Date);
             return records;
+        }
+
+        // Get last broadcase
+        public EnergyLogs GetLastBroadcastFromDate(DateTime dateTime)
+        {
+            var record = _energyLogsRepository.Get()
+                                              .OrderByDescending(el => el.Timestamp)
+                                              .FirstOrDefault(el => el.Timestamp.Date == dateTime.Date);
+            return record;
         }
 
     }

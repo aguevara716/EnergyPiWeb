@@ -10,9 +10,13 @@
         executeHttpGet("Dashboard/GetThisMonthsConsumption",
             (data) => $("#current-months-consumption").append(data + " kWh"),
             () => $("#current-months-consumption").html("Error while calling the API"));
+
+        executeHttpGet("Dashboard/GetTimestampOfLastRecord",
+            (data) => $("#last-updated-heading").append(data),
+            () => $("#last-updated-heading").html("Error while calling the API"));</script>
 }
 
 <h1>@ViewData["Title"]</h1>
+<h6 id="last-updated-heading">Last updated: </h6>
 
-<label id="todays-consumption">Today's Consumption: </label>
 <label id="current-months-consumption">This Month's Consumption: </label>
