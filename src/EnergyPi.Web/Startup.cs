@@ -31,7 +31,7 @@ namespace EnergyPi.Web
 
             services = AddCustomServices(services);
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
         }
 
