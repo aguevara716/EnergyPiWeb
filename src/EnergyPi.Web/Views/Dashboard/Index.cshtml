@@ -1,35 +1,15 @@
-﻿@{ 
+﻿@{
     ViewData["Title"] = "Dashboard";
 }
 
-@section Scripts { 
-    <script>
-        $(document).ready(function () {
-            var todaysConsumptionAjaxCall = {};
-            todaysConsumptionAjaxCall.url = "Dashboard/GetTodaysConsumption";
-            todaysConsumptionAjaxCall.type = "GET";
-            todaysConsumptionAjaxCall.dataType = "json";
-            todaysConsumptionAjaxCall.success = function (data) {
-                $("#todays-consumption").append(data + " kWh");
-            };
-            todaysConsumptionAjaxCall.error = function () {
-                $("#todays-consumption").html("Error while calling the API");
-            };
-            $.ajax(todaysConsumptionAjaxCall);
+@section Scripts {
+    <script>executeHttpGet("Dashboard/GetTodaysConsumption",
+            (data) => $("#todays-consumption").append(data + " kWh"),
+            () => $("#todays-consumption").html("Error while calling the API"));
 
-            var thisMonthsConsumptionAjaxCall = {};
-            thisMonthsConsumptionAjaxCall.url = "Dashboard/GetThisMonthsConsumption";
-            thisMonthsConsumptionAjaxCall.type = "GET";
-            thisMonthsConsumptionAjaxCall.dataType = "json";
-            thisMonthsConsumptionAjaxCall.success = function (data) {
-                $("#current-months-consumption").append(data + "kWh");
-            };
-            thisMonthsConsumptionAjaxCall.error = function () {
-                $("#current-months-consumption").append("Error while calling the API");
-            };
-            $.ajax(thisMonthsConsumptionAjaxCall);
-        });
-    </script>
+        executeHttpGet("Dashboard/GetThisMonthsConsumption",
+            (data) => $("#current-months-consumption").append(data + " kWh"),
+            () => $("#current-months-consumption").html("Error while calling the API"));
 }
 
 <h1>@ViewData["Title"]</h1>
