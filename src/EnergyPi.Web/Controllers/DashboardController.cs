@@ -1,6 +1,8 @@
 ﻿using System;
+using EnergyPi.Web.Builders;
 using EnergyPi.Web.DataServices;
 using EnergyPi.Web.Extensions;
+using EnergyPi.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,43 +12,42 @@ namespace EnergyPi.Web.Controllers
     public class DashboardController : Controller
     {
         // Dependencies
+        private readonly IDashboardViewModelBuilder _dashboardViewModelBuilder;
         private readonly IEnergyLogsDataService _energyLogsDataService;
 
         // Constructors
-        public DashboardController(IEnergyLogsDataService energyLogsDataService)
+        public DashboardController(IDashboardViewModelBuilder dashboardViewModelBuilder,
+                                   IEnergyLogsDataService energyLogsDataService)
         {
+            _dashboardViewModelBuilder = dashboardViewModelBuilder;
             _energyLogsDataService = energyLogsDataService;
+        }
+
+        // Private Methods
+        private DashboardViewModel GetDashboardViewModelInternal()
+        {
+            var startDate = DateTimeExtensions.GetFirstDayOfMonth(DateTime.Now);
+            var endDate = DateTimeExtensions.GetFirstDayOfNextMonth(DateTime.Now);
+
+            var currentMonthsEnergyLogs = _energyLogsDataService.GetRecordsForDateRange(startDate, endDate);
+
+            var dashboardViewModel = _dashboardViewModelBuilder.BuildDashboardViewModel(currentMonthsEnergyLogs);
+            return dashboardViewModel;
         }
 
         // View Methods
         public IActionResult Index()
         {
-            return View();
+            var dashboardViewModel = GetDashboardViewModelInternal();
+            return View(dashboardViewModel);
         }
 
         // API Methods
         [HttpGet]
-        public JsonResult GetTodaysConsumption()
+        public JsonResult GetDashboardViewModel()
         {
-            var todaysConsumption = _energyLogsDataService.GetTotalConsumptionForDate(DateTime.Now);
-            return Json(todaysConsumption);
-        }
-
-        [HttpGet]
-        public JsonResult GetThisMonthsConsumption()
-        {
-            var startDate = DateTimeExtensions.GetFirstDayOfMonth(DateTime.Now);
-            var endDate = DateTimeExtensions.GetFirstDayOfNextMonth(DateTime.Now);
-
-            var thisMonthsConsumption = _energyLogsDataService.GetTotalConsumptionForDateRange(startDate, endDate);
-            return Json(thisMonthsConsumption);
-        }
-
-        [HttpGet]
-        public JsonResult GetTimestampOfLastRecord()
-        {
-            var lastTimestamp = _energyLogsDataService.GetLastBroadcastFromDate(DateTime.Now);
-            return Json(lastTimestamp);
+            var dashboardViewModel = GetDashboardViewModelInternal();
+            return Json(dashboardViewModel);
         }
 
     }

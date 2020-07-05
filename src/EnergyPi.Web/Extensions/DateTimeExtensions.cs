@@ -10,18 +10,17 @@ namespace EnergyPi.Web.Extensions
             return firstDayOfMonth;
         }
 
+        public static DateTime GetLastDayOfMonth(DateTime date)
+        {
+            var firstDayOfNextMonth = GetFirstDayOfNextMonth(date);
+            var lastDayOfMonth = firstDayOfNextMonth.AddDays(-1);
+            return lastDayOfMonth;
+        }
+
         public static DateTime GetFirstDayOfNextMonth(DateTime date)
         {
-            var year = date.Year;
-            var nextMonth = date.Month + 1;
-
-            if (nextMonth == 13)
-            {
-                year += 1;
-                nextMonth = 1;
-            }
-
-            var firstDayOfNextMonth = new DateTime(year, nextMonth, 1);
+            var dateNextMonth = date.AddMonths(1);
+            var firstDayOfNextMonth = new DateTime(dateNextMonth.Year, dateNextMonth.Month, 1);
             return firstDayOfNextMonth;
         }
 

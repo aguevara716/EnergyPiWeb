@@ -1,27 +1,123 @@
-﻿@{
+﻿@using EnergyPi.Web.Extensions;
+@{
     ViewData["Title"] = "Dashboard";
 }
 
+@model EnergyPi.Web.Models.DashboardViewModel
+
 @section Scripts {
-    <script>executeHttpGet("Dashboard/GetTodaysConsumption",
-            (data) => $("#todays-consumption").append(data + " kWh"),
-            () => $("#todays-consumption").html("Error while calling the API"));
+    <script>
+        var pastHourConsumption = @Html.Raw(Model.PastHourConsumptionJson);
 
-        executeHttpGet("Dashboard/GetThisMonthsConsumption",
-            (data) => $("#current-months-consumption").append(data + " kWh"),
-            () => $("#current-months-consumption").html("Error while calling the API"));
-
-        executeHttpGet("Dashboard/GetTimestampOfLastRecord",
-            (data) => $("#last-updated-heading").append(data),
-            () => $("#last-updated-heading").html("Error while calling the API"));</script>
+        var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
+        var pastHourChart = new Chart(ctx, {
+            type: "bar",
+            data: pastHourConsumption
+        });
+    </script>
 }
 
-<h1>@ViewData["Title"]</h1>
-<h6 id="last-updated-heading">Last updated: </h6>
+<h1>
+    @ViewData["Title"]
+</h1>
+<h6>
+    <small class="text-muted">Last Updated: @Model?.LastBroadcastTimestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
+</h6>
 
-<div>
-    <label id="todays-consumption">Today's Consumption: </label>
+<br />
+<div id="quick-stats-table">
+    <table class="table table-hover table-bordered table-sm">
+        <tr>
+            <th scope="row">
+                Today's Consumption
+            </th>
+            <td>
+                @Model?.TodaysTotalConsumption kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                @DateTime.Now.ToString("MMMMM")'s Consumption
+            </th>
+            <td>
+                @Model?.ThisMonthsTotalConsumption kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Estimated Consumption for @DateTime.Now.ToString("MMMM")
+            </th>
+            <td>
+                @Model?.ThisMonthsEstimatedTotalConsumption.ToString("N2") kWh
+            </td>
+        </tr>
+    </table>
 </div>
-<div>
-    <label id="current-months-consumption">This Month's Consumption: </label>
+
+<canvas id="past-hour-consumption-chart" height="400"></canvas>
+
+<div id="past-hour-consumption-table">
+    <br />
+    <h3>Past Hour's Consumption: @Model.PastHourConsumption.Sum(kvp => kvp.Value) kWh</h3>
+    <table class="table table-hover">
+        <tr>
+            <th>Timestamp</th>
+            <th>Consumption (kWh)</th>
+        </tr>
+        @foreach (var kvp in Model.PastHourConsumption)
+        {
+            <tr>
+                <td>
+                    @kvp.Key.ToString("hh:mm:ss tt")
+                </td>
+                <td>
+                    @kvp.Value
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div id="todays-hourly-consumption-table">
+    <br />
+    <h3>Today's Hourly Consumption</h3>
+    <table class="table table-hover">
+        <tr>
+            <th>Timestamp</th>
+            <th>Consumption (kWh)</th>
+        </tr>
+        @foreach (var kvp in Model.TodaysHourlyConsumption)
+        {
+            <tr>
+                <td>
+                    @kvp.Key.ToString("hh:mm tt")
+                </td>
+                <td>
+                    @kvp.Value
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div id="this-months-consumption-table">
+    <br />
+    <h3>Consumption for @DateTime.Now.ToString("MMMM yyyy")</h3>
+    <table class="table table-hover">
+        <tr>
+            <th>Date</th>
+            <th>Consumption (kWh)</th>
+        </tr>
+        @foreach (var kvp in Model.ThisMonthsDailyConsumption)
+        {
+            <tr>
+                <td>
+                    @kvp.Key.ToString("MMMM d")
+                </td>
+                <td>
+                    @kvp.Value
+                </td>
+            </tr>
+        }
+    </table>
 </div>
