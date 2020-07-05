@@ -70,7 +70,7 @@ namespace EnergyPi.Web.Builders
                                              .GroupBy(el => el.Timestamp.Hour)
                                              .Select(g => new { Timestamp = new DateTime(now.Year, now.Month, now.Day, g.Key, 0, 0), Consumption = g.ToList().Select(el => el.Delta).Sum() })
                                              .ToDictionary(a => a.Timestamp, a => a.Consumption);
-            var nextHour = new DateTime(now.Year, now.Month, now.Day, now.AddHours(1).Hour, 0, 0);
+            var nextHour = now.AddHours(1);
             while (nextHour.Day == DateTime.Now.Day)
             {
                 totalConsumption[nextHour] = null;
