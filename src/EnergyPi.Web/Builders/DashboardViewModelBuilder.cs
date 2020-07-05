@@ -73,7 +73,8 @@ namespace EnergyPi.Web.Builders
             var nextHour = now.AddHours(1);
             while (nextHour.Day == DateTime.Now.Day)
             {
-                totalConsumption[nextHour] = null;
+                var key = new DateTime(nextHour.Year, nextHour.Month, nextHour.Day, nextHour.Hour, 0, 0);
+                totalConsumption[key] = null;
                 nextHour = nextHour.AddHours(1);
             }
             return totalConsumption;
