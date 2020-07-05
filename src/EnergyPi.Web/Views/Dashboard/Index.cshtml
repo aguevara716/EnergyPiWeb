@@ -7,13 +7,49 @@
 
 @section Scripts {
     <script>
-        var pastHourConsumption = @Html.Raw(Model.PastHourConsumptionJson);
+        function buildPastHourConsumptionChart() {
+            var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
+            var pastHourChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.PastHourConsumption.Values) ]
+                    }
+                    ]
+                }
+            });
+        }
 
-        var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
-        var pastHourChart = new Chart(ctx, {
-            type: "bar",
-            data: pastHourConsumption
-        });
+        function buildTodaysHourlyConsumptionChart() {
+            var ctx = document.getElementById("todays-hourly-consumption-chart").getContext("2d");
+            var todaysHourlyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.TodaysHourlyConsumption.Values) ]
+                    }]
+                }
+            });
+        }
+
+        function buildThisMonthsConsumptionChart() {
+            var ctx = document.getElementById("this-months-consumption-chart").getContext("2d");
+            var thisMonthsDailyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.ThisMonthsDailyConsumption.Values) ]
+                    }]
+                }
+            });
+        }
+
+        buildPastHourConsumptionChart();
+        buildTodaysHourlyConsumptionChart();
+        buildThisMonthsConsumptionChart();
     </script>
 }
 
@@ -54,70 +90,20 @@
     </table>
 </div>
 
-<canvas id="past-hour-consumption-chart" height="400"></canvas>
-
-<div id="past-hour-consumption-table">
+<div id="past-hour-consumption">
     <br />
     <h3>Past Hour's Consumption: @Model.PastHourConsumption.Sum(kvp => kvp.Value) kWh</h3>
-    <table class="table table-hover">
-        <tr>
-            <th>Timestamp</th>
-            <th>Consumption (kWh)</th>
-        </tr>
-        @foreach (var kvp in Model.PastHourConsumption)
-        {
-            <tr>
-                <td>
-                    @kvp.Key.ToString("hh:mm:ss tt")
-                </td>
-                <td>
-                    @kvp.Value
-                </td>
-            </tr>
-        }
-    </table>
+    <canvas id="past-hour-consumption-chart" height="100"></canvas>
 </div>
 
-<div id="todays-hourly-consumption-table">
+<div id="todays-hourly-consumption">
     <br />
     <h3>Today's Hourly Consumption</h3>
-    <table class="table table-hover">
-        <tr>
-            <th>Timestamp</th>
-            <th>Consumption (kWh)</th>
-        </tr>
-        @foreach (var kvp in Model.TodaysHourlyConsumption)
-        {
-            <tr>
-                <td>
-                    @kvp.Key.ToString("hh:mm tt")
-                </td>
-                <td>
-                    @kvp.Value
-                </td>
-            </tr>
-        }
-    </table>
+    <canvas id="todays-hourly-consumption-chart" height="100"></canvas>
 </div>
 
-<div id="this-months-consumption-table">
+<div id="this-months-consumption">
     <br />
     <h3>Consumption for @DateTime.Now.ToString("MMMM yyyy")</h3>
-    <table class="table table-hover">
-        <tr>
-            <th>Date</th>
-            <th>Consumption (kWh)</th>
-        </tr>
-        @foreach (var kvp in Model.ThisMonthsDailyConsumption)
-        {
-            <tr>
-                <td>
-                    @kvp.Key.ToString("MMMM d")
-                </td>
-                <td>
-                    @kvp.Value
-                </td>
-            </tr>
-        }
-    </table>
+    <canvas id="this-months-consumption-chart"></canvas>
 </div>
