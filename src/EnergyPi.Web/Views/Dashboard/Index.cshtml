@@ -1,38 +1,109 @@
-﻿@{ 
+﻿@using EnergyPi.Web.Extensions;
+@{
     ViewData["Title"] = "Dashboard";
 }
 
-@section Scripts { 
-    <script>
-        $(document).ready(function () {
-            var todaysConsumptionAjaxCall = {};
-            todaysConsumptionAjaxCall.url = "Dashboard/GetTodaysConsumption";
-            todaysConsumptionAjaxCall.type = "GET";
-            todaysConsumptionAjaxCall.dataType = "json";
-            todaysConsumptionAjaxCall.success = function (data) {
-                $("#todays-consumption").append(data + " kWh");
-            };
-            todaysConsumptionAjaxCall.error = function () {
-                $("#todays-consumption").html("Error while calling the API");
-            };
-            $.ajax(todaysConsumptionAjaxCall);
+@model EnergyPi.Web.Models.DashboardViewModel
 
-            var thisMonthsConsumptionAjaxCall = {};
-            thisMonthsConsumptionAjaxCall.url = "Dashboard/GetThisMonthsConsumption";
-            thisMonthsConsumptionAjaxCall.type = "GET";
-            thisMonthsConsumptionAjaxCall.dataType = "json";
-            thisMonthsConsumptionAjaxCall.success = function (data) {
-                $("#current-months-consumption").append(data + "kWh");
-            };
-            thisMonthsConsumptionAjaxCall.error = function () {
-                $("#current-months-consumption").append("Error while calling the API");
-            };
-            $.ajax(thisMonthsConsumptionAjaxCall);
-        });
+@section Scripts {
+    <script>
+        function buildPastHourConsumptionChart() {
+            var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
+            var pastHourChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.PastHourConsumption.Values) ]
+                    }
+                    ]
+                }
+            });
+        }
+
+        function buildTodaysHourlyConsumptionChart() {
+            var ctx = document.getElementById("todays-hourly-consumption-chart").getContext("2d");
+            var todaysHourlyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.TodaysHourlyConsumption.Values) ]
+                    }]
+                }
+            });
+        }
+
+        function buildThisMonthsConsumptionChart() {
+            var ctx = document.getElementById("this-months-consumption-chart").getContext("2d");
+            var thisMonthsDailyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(", ", Model.ThisMonthsDailyConsumption.Values) ]
+                    }]
+                }
+            });
+        }
+
+        buildPastHourConsumptionChart();
+        buildTodaysHourlyConsumptionChart();
+        buildThisMonthsConsumptionChart();
     </script>
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>
+    @ViewData["Title"]
+</h1>
+<h6>
+    <small class="text-muted">Last Updated: @Model?.LastBroadcastTimestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
+</h6>
 
-<label id="todays-consumption">Today's Consumption: </label>
-<label id="current-months-consumption">This Month's Consumption: </label>
+<br />
+<div id="quick-stats-table">
+    <table class="table table-hover table-bordered table-sm">
+        <tr>
+            <th scope="row">
+                Today's Consumption
+            </th>
+            <td>
+                @Model?.TodaysTotalConsumption kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                @DateTime.Now.ToString("MMMMM")'s Consumption
+            </th>
+            <td>
+                @Model?.ThisMonthsTotalConsumption kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Estimated Consumption for @DateTime.Now.ToString("MMMM")
+            </th>
+            <td>
+                @Model?.ThisMonthsEstimatedTotalConsumption.ToString("N2") kWh
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="past-hour-consumption">
+    <br />
+    <h3>Past Hour's Consumption: @Model.PastHourConsumption.Sum(kvp => kvp.Value) kWh</h3>
+    <canvas id="past-hour-consumption-chart" height="100"></canvas>
+</div>
+
+<div id="todays-hourly-consumption">
+    <br />
+    <h3>Today's Hourly Consumption</h3>
+    <canvas id="todays-hourly-consumption-chart" height="100"></canvas>
+</div>
+
+<div id="this-months-consumption">
+    <br />
+    <h3>Consumption for @DateTime.Now.ToString("MMMM yyyy")</h3>
+    <canvas id="this-months-consumption-chart"></canvas>
+</div>

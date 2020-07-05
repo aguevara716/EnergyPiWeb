@@ -1,3 +1,4 @@
+using EnergyPi.Web.Builders;
 using EnergyPi.Web.Data;
 using EnergyPi.Web.DataServices;
 using EnergyPi.Web.Entities;
@@ -31,16 +32,21 @@ namespace EnergyPi.Web
 
             services = AddCustomServices(services);
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
         }
 
         private IServiceCollection AddCustomServices(IServiceCollection services)
         {
+            // repositories
             services.AddTransient<IRepository<EnergyLogs>, DataRepository<EnergyLogs>>();
             services.AddTransient<IRepository<WeatherLogs>, DataRepository<WeatherLogs>>();
 
+            // data services
             services.AddTransient<IEnergyLogsDataService, EnergyLogsDataService>();
+
+            // builders
+            services.AddTransient<IDashboardViewModelBuilder, DashboardViewModelBuilder>();
 
             return services;
         }
