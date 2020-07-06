@@ -1,3 +1,100 @@
-﻿@page
-@{
+﻿@{
+    ViewData["Title"] = "History";
 }
+
+@model EnergyPi.Web.Models.HistoryViewModel
+
+@section Scripts {
+    <script>
+        // focused hour consumption
+        (function () {
+            var ctx = document.getElementById("focused-hour-consumption-chart").getContext("2d");
+            var focusedHourChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [ @Html.Raw(String.Join(", ", Model.FocusedHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(",", Model.FocusedHourConsumption.Values) ]
+                    }]
+                }
+            });
+        })();
+
+        // focused day's hourly consumption
+        (function () {
+            var ctx = document.getElementById("focused-days-hourly-consumption-chart").getContext("2d");
+            var daysHourlyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(",", Model.FocusedDaysHourlyConsumption.Values) ]
+                    }]
+                }
+            });
+        })();
+
+        // focused month's consumption
+        (function () {
+            var ctx = document.getElementById("focused-months-consumption-chart").getContext("2d");
+            var monthsDailyChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ],
+                    datasets: [{
+                        data: [ @String.Join(",", Model.FocusMonthsDailyConsumption.Values) ]
+                    }]
+                }
+            });
+        })();
+    </script>
+}
+
+<h1>
+    @ViewData["Title"] - @Model?.FocusedDate.ToString("MMMM d, yyyy")
+</h1>
+
+<div class="panel">
+    <input type="datetime" id="date-time-input" class="form-control" />
+    <a href="History/Index?date=2020-03-14" class="btn btn-primary" role="button">Load</a>
+</div>
+
+<br />
+<div id="quick-stats-table">
+    <table class="table table-hover table-bordered table-sm">
+        <tr>
+            <th scope="row">
+                Day's Consumption
+            </th>
+            <td>
+                @Model?.FocusedDaysTotalConsumption kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                @Model?.FocusedDate.ToString("MMMM yyyy")'s Consumption
+            </th>
+            <td>
+                @Model?.FocusedMonthsTotalConsumption kWh
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="focused-hour-consumption">
+    <br />
+    <h3>Consumption at @Model?.FocusedDate.ToString("hh:mm tt")</h3>
+    <canvas id="focused-hour-consumption-chart" height="100"></canvas>
+</div>
+
+<div id="focused-days-hourly-consumption">
+    <br />
+    <h3>Hourly Consumption on @Model?.FocusedDate.ToString("MMMM dd, yyyy")</h3>
+    <canvas id="focused-days-hourly-consumption-chart" height="100"></canvas>
+</div>
+
+<div id="focused-months-consumption">
+    <br />
+    <h3>Consumption for @Model?.FocusedDate.ToString("MMMM yyyy")</h3>
+    <canvas id="focused-months-consumption-chart" height="100"></canvas>
+</div>
