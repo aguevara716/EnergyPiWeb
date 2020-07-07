@@ -19,7 +19,8 @@
                     labels: timestampDataPoints,
                     datasets: [{
                         label: "Energy Consumption (kWh)",
-                        data: energyConsumptionDataPoints
+                        data: energyConsumptionDataPoints,
+                        lineTension: 0
                     }]
                 },
                 options: {
@@ -58,7 +59,8 @@
                             fill: false,
                             backgroundColor: "#FF0000",
                             borderColor: "#FF0000",
-                            data: temperatureDataPoints
+                            data: temperatureDataPoints,
+                            lineTension: 0
                         }
                     ]
                 },
@@ -113,7 +115,8 @@
                             borderColor: "#FF0000",
                             label: "High Temperature (°F)",
                             yAxisID: "weather-y-axis",
-                            data: highTemperatureDataPoints
+                            data: highTemperatureDataPoints,
+                            lineTension: 0
                         },
                         {
                             type: "line",
@@ -122,7 +125,8 @@
                             borderColor: "#E5E500",
                             label: "Average Temperature (°F)",
                             yAxisID: "weather-y-axis",
-                            data: averageTemperatureDataPoints
+                            data: averageTemperatureDataPoints,
+                            lineTension: 0
                         },
                         {
                             type: "line",
@@ -131,7 +135,8 @@
                             borderColor: "#0000FF",
                             label: "Low Temperature (°F)",
                             yAxisID: "weather-y-axis",
-                            data: lowTemperatureDataPoints
+                            data: lowTemperatureDataPoints,
+                            lineTension: 0
                         }
                     ]
                 },
