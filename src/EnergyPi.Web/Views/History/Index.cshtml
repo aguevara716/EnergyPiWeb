@@ -30,6 +30,13 @@
                     datasets: [{
                         data: [ @String.Join(",", Model.FocusedDaysHourlyConsumption.Values) ]
                     }]
+                },
+                options: {
+                    onClick: function (c, i) {
+                        var index = i[0]._index;
+                        const keys = [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
+                        window.location.href = "/History/Index?date=" + keys[index];
+                    }
                 }
             });
         })();
@@ -44,6 +51,13 @@
                     datasets: [{
                         data: [ @String.Join(",", Model.FocusMonthsDailyConsumption.Values) ]
                     }]
+                },
+                options: {
+                    onClick: function (c, i) {
+                        var index = i[0]._index;
+                        const keys = [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
+                        window.location.href = "/History/Index?date=" + keys[index];
+                    }
                 }
             });
         })();
