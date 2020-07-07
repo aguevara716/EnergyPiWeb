@@ -3,10 +3,12 @@ using EnergyPi.Web.Builders;
 using EnergyPi.Web.DataServices;
 using EnergyPi.Web.Extensions;
 using EnergyPi.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnergyPi.Web.Controllers
 {
+    [Authorize]
     public class HistoryController : Controller
     {
         // Dependencies
