@@ -47,6 +47,14 @@
                 }
             });
         })();
+
+        // pre-set the datetime input box w/ the date parameter from the URL
+        document.getElementById("date-time-input").value = (new URLSearchParams(window.location.search)).get("date");
+        // on button click, navigate to the new datetime
+        document.getElementById("load-date-btn").onclick = function () {
+            var dateTime = document.getElementById("date-time-input").value
+            window.location.href = "/History/Index?date=" + dateTime;
+        }
     </script>
 }
 
@@ -55,8 +63,9 @@
 </h1>
 
 <div class="panel">
+    <label>Date to view:</label>
     <input type="datetime" id="date-time-input" class="form-control" />
-    <a href="History/Index?date=2020-03-14" class="btn btn-primary" role="button">Load</a>
+    <button id="load-date-btn" class="btn btn-primary">Show Date</button>
 </div>
 
 <br />
@@ -83,7 +92,7 @@
 
 <div id="focused-hour-consumption">
     <br />
-    <h3>Consumption at @Model?.FocusedDate.ToString("hh:mm tt")</h3>
+    <h3>Consumption at @Model?.FocusedDate.ToString("h:mm tt")</h3>
     <canvas id="focused-hour-consumption-chart" height="100"></canvas>
 </div>
 
