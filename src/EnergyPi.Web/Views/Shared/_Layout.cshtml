@@ -29,7 +29,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
                         <li>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="History" asp-action="Index">History</a>
+                            @Html.ActionLink("History", "Index", "History", new { date = DateTime.Now.AddDays(-1).Date }, new { @class="nav-link text-dark" })
                         </li>
                     </ul>
                 </div>
