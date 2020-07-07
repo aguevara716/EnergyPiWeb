@@ -30,6 +30,13 @@
                     datasets: [{
                         data: [ @String.Join(", ", Model.TodaysHourlyConsumption.Values) ]
                     }]
+                },
+                options: {
+                    onClick: function (c, i) {
+                        var index = i[0]._index;
+                        const keys = [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
+                        window.location.href = "/History/Index?date=" + keys[index];
+                    }
                 }
             });
         }
@@ -43,6 +50,13 @@
                     datasets: [{
                         data: [ @String.Join(", ", Model.ThisMonthsDailyConsumption.Values) ]
                     }]
+                },
+                options: {
+                    onClick: function (c, i) {
+                        var index = i[0]._index;
+                        const keys = [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
+                        window.location.href = "/History/Index?date=" + keys[index];
+                    }
                 }
             });
         }
@@ -105,5 +119,5 @@
 <div id="this-months-consumption">
     <br />
     <h3>Consumption for @DateTime.Now.ToString("MMMM yyyy")</h3>
-    <canvas id="this-months-consumption-chart"></canvas>
+    <canvas id="this-months-consumption-chart" height="100"></canvas>
 </div>

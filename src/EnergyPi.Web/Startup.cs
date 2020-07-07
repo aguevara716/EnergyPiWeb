@@ -47,6 +47,7 @@ namespace EnergyPi.Web
 
             // builders
             services.AddTransient<IDashboardViewModelBuilder, DashboardViewModelBuilder>();
+            services.AddTransient<IHistoryViewModelBuilder, HistoryViewModelBuilder>();
 
             return services;
         }
