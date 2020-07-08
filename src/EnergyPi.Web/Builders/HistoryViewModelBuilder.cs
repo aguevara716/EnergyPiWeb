@@ -9,13 +9,13 @@ namespace EnergyPi.Web.Builders
 {
     public interface IHistoryViewModelBuilder
     {
-        HistoryViewModel BuildViewModel(DateTime date, IQueryable<EnergyLogs> energyLogs);
-        HistoryViewModel BuildViewModel(DateTime date, IList<EnergyLogs> energyLogs);
+        HistoryViewModel BuildViewModel(DateTime date, IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs);
+        HistoryViewModel BuildViewModel(DateTime date, IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs);
     }
 
     public class HistoryViewModelBuilder : IHistoryViewModelBuilder
     {
-        // Private Methods
+        // EnergyLogs Methods
         private Dictionary<DateTime, Decimal?> GetFocusedDaysHourlyConsumption(DateTime date, IList<EnergyLogs> energyLogs)
         {
             var hourlyConsumption = energyLogs.Where(el => el.Timestamp.Date == date.Date)
@@ -76,14 +76,114 @@ namespace EnergyPi.Web.Builders
             return dailyConsumption;
         }
 
-        // Public Methods
-        public HistoryViewModel BuildViewModel(DateTime date, IQueryable<EnergyLogs> energyLogs)
+        // WeatherLogs Methods
+        private decimal GetFocusedDaysAverageHumidity(DateTime date, IList<WeatherLogs> weatherLogs)
         {
-            var energyLogsList = energyLogs.ToList();
-            return BuildViewModel(date, energyLogsList);
+            var averageHumidity = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                             .Average(wl => wl.Humidity)
+                                             .GetValueOrDefault();
+            return averageHumidity;
         }
 
-        public HistoryViewModel BuildViewModel(DateTime date, IList<EnergyLogs> energyLogs)
+        private decimal GetFocusedDaysAverageTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var averageTemperature = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                                .Average(wl => wl.TemperatureFahrenheit)
+                                                .GetValueOrDefault();
+            return averageTemperature;
+        }
+
+        private Dictionary<DateTime, decimal?> GetFocusedMonthsAverageTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, Temperature = g.ToList().Average(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.Temperature);
+            return results;
+        }
+
+        private decimal GetFocusedDaysHighestHumidity(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var highestHumidity = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                             .Max(wl => wl.Humidity)
+                                             .GetValueOrDefault();
+            return highestHumidity;
+        }
+
+        private decimal GetFocusedDaysHighestTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var highestTemperature = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                                .Max(wl => wl.TemperatureFahrenheit)
+                                                .GetValueOrDefault();
+            return highestTemperature;
+        }
+
+        private decimal GetFocusedDaysLowestHumidity(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var lowestHumidity = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                            .Min(wl => wl.Humidity)
+                                            .GetValueOrDefault();
+            return lowestHumidity;
+        }
+
+        private decimal GetFocusedDaysLowestTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var lowestTemperature = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                               .Min(wl => wl.TemperatureFahrenheit)
+                                               .GetValueOrDefault();
+            return lowestTemperature;
+        }
+
+        private Dictionary<DateTime, decimal?> GetFocusedDaysTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.Where(wl => wl.Timestamp.Date == date.Date)
+                                     .ToDictionary(wl => wl.Timestamp, wl => wl.TemperatureFahrenheit);
+            return results;
+        }
+
+        private decimal GetFocusedHoursHumidity(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var humidity = weatherLogs.FirstOrDefault(wl => wl.Timestamp.Date == date.Date &&
+                                                            wl.Timestamp.Hour == date.Hour)
+                                      .Humidity
+                                      .GetValueOrDefault();
+            return humidity;
+        }
+
+        private decimal GetFocusedHoursTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var temperature = weatherLogs.FirstOrDefault(wl => wl.Timestamp.Date == date.Date &&
+                                                               wl.Timestamp.Hour == date.Hour)
+                                         .TemperatureFahrenheit
+                                         .GetValueOrDefault();
+            return temperature;
+        }
+
+        private Dictionary<DateTime, decimal?> GetFocusedMonthsHighestTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, Temperature = g.ToList().Max(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.Temperature);
+            return results;
+        }
+
+        private Dictionary<DateTime, decimal?> GetFocusedMonthsLowestTemperature(DateTime date, IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, Temperature = g.ToList().Min(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.Temperature);
+            return results;
+        }
+
+        // Public Methods
+        public HistoryViewModel BuildViewModel(DateTime date, IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs)
+        {
+            var energyLogsList = energyLogs.ToList();
+            var weatherLogsList = weatherLogs.ToList();
+
+            return BuildViewModel(date, energyLogsList, weatherLogsList);
+        }
+
+        public HistoryViewModel BuildViewModel(DateTime date, IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs)
         {
             if (energyLogs == null)
                 return null;
@@ -91,14 +191,30 @@ namespace EnergyPi.Web.Builders
             date = new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0);
             var hvm = new HistoryViewModel
             {
+                // EnergyLogs
                 FocusedDate = date,
                 FocusedDaysHourlyConsumption = GetFocusedDaysHourlyConsumption(date, energyLogs),
                 FocusedDaysTotalConsumption = GetFocusedDaysTotalConsumption(date, energyLogs),
                 FocusedHourConsumption = GetFocusedHourConsumption(date, energyLogs),
                 FocusedMonthsTotalConsumption = GetFocusedMonthsTotalConsumption(date, energyLogs),
-                FocusMonthsDailyConsumption = GetFocusedMonthsDailyConsumption(date, energyLogs)
+                FocusMonthsDailyConsumption = GetFocusedMonthsDailyConsumption(date, energyLogs),
+
+                // WeatherLogs
+                FocusedDaysAverageHumidity = GetFocusedDaysAverageHumidity(date, weatherLogs),
+                FocusedDaysAverageTemperature = GetFocusedDaysAverageTemperature(date, weatherLogs),
+                FocusedMonthsAverageTemperature = GetFocusedMonthsAverageTemperature(date, weatherLogs),
+                FocusedDaysHighestHumidity = GetFocusedDaysHighestHumidity(date, weatherLogs),
+                FocusedDaysHighestTemperature = GetFocusedDaysHighestTemperature(date, weatherLogs),
+                FocusedDaysLowestHumidity = GetFocusedDaysLowestHumidity(date, weatherLogs),
+                FocusedDaysLowestTemperature = GetFocusedDaysLowestTemperature(date, weatherLogs),
+                FocusedDaysTemperature = GetFocusedDaysTemperature(date, weatherLogs),
+                FocusedHoursHumidity = GetFocusedHoursHumidity(date, weatherLogs),
+                FocusedHoursTemperature = GetFocusedHoursTemperature(date, weatherLogs),
+                FocusedMonthsHighestTemperature = GetFocusedMonthsHighestTemperature(date, weatherLogs),
+                FocusedMonthsLowestTemperature = GetFocusedMonthsLowestTemperature(date, weatherLogs)
             };
             return hvm;
         }
+
     }
 }

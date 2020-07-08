@@ -6,7 +6,7 @@
 
 @section Scripts {
     <script>
-        // focused hour consumption
+        // focused hour's consumption
         (function () {
             var ctx = document.getElementById("focused-hour-consumption-chart").getContext("2d");
             var focusedHourChart = new Chart(ctx, {
@@ -14,6 +14,7 @@
                 data: {
                     labels: [ @Html.Raw(String.Join(", ", Model.FocusedHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
                     datasets: [{
+                        label: "Energy Consumption (kWh)",
                         data: [ @String.Join(",", Model.FocusedHourConsumption.Values) ]
                     }]
                 }
@@ -22,20 +23,52 @@
 
         // focused day's hourly consumption
         (function () {
+            var hourlyDataPoints = [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ];
+            var hourlyDateTimeDataPoints = [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
+            var energyConsumptionDataPoints = [ @String.Join(",", Model.FocusedDaysHourlyConsumption.Values) ];
+            var temperatureDataPoints = [ @Html.Raw(String.Join(",", Model.FocusedDaysTemperature.Values)) ];
+
             var ctx = document.getElementById("focused-days-hourly-consumption-chart").getContext("2d");
             var daysHourlyChart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ],
-                    datasets: [{
-                        data: [ @String.Join(",", Model.FocusedDaysHourlyConsumption.Values) ]
-                    }]
+                    labels: hourlyDataPoints,
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "energy-y-axis",
+                            data: energyConsumptionDataPoints
+                        }, {
+                            label: "Weather (°F)",
+                            yAxisID: "weather-y-axis",
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000",
+                            data: temperatureDataPoints,
+                            lineTension: 0
+                        }
+                    ]
                 },
                 options: {
                     onClick: function (c, i) {
                         var index = i[0]._index;
-                        const keys = [ @Html.Raw(String.Join(",", Model.FocusedDaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
-                        window.location.href = "/History/Index?date=" + keys[index];
+                        window.location.href = "/History/Index?date=" + hourlyDateTimeDataPoints[index];
+                    },
+                    scales: {
+                        yAxes: [
+                            {
+                                id: "energy-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            },
+                            {
+                                id: "weather-y-axis",
+                                position: "right"
+                            }
+                        ]
                     }
                 }
             });
@@ -43,20 +76,71 @@
 
         // focused month's consumption
         (function () {
+            var dailyDataPoints = [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ];
+            var dateTimeDataPoints = [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k}\""))) ];
+            var energyConsumptionDataPoints = [ @String.Join(",", Model.FocusMonthsDailyConsumption.Values) ];
+            var highTemperatureDataPoints = [ @String.Join(",", Model.FocusedMonthsHighestTemperature.Values) ];
+            var averageTemperatureDataPoints = [ @String.Join(",", Model.FocusedMonthsAverageTemperature.Values) ];
+            var lowTemperatureDataPoints = [ @String.Join(",", Model.FocusedMonthsLowestTemperature.Values) ];
+
             var ctx = document.getElementById("focused-months-consumption-chart").getContext("2d");
             var monthsDailyChart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ],
-                    datasets: [{
-                        data: [ @String.Join(",", Model.FocusMonthsDailyConsumption.Values) ]
-                    }]
+                    labels: dailyDataPoints,
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "energy-y-axis",
+                            data: energyConsumptionDataPoints
+                        }, {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000",
+                            label: "High Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: highTemperatureDataPoints,
+                            lineTension: 0
+                        }, {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#E5E500",
+                            borderColor: "#E5E500",
+                            label: "Average Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: averageTemperatureDataPoints,
+                            lineTension: 0
+                        }, {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#0000FF",
+                            borderColor: "#0000FF",
+                            label: "Low Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: lowTemperatureDataPoints,
+                            lineTension: 0
+                        }
+                    ]
                 },
                 options: {
                     onClick: function (c, i) {
                         var index = i[0]._index;
-                        const keys = [ @Html.Raw(String.Join(",", Model.FocusMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
-                        window.location.href = "/History/Index?date=" + keys[index];
+                        window.location.href = "/History/Index?date=" + dateTimeDataPoints[index];
+                    },
+                    scales: {
+                        yAxes: [
+                            {
+                                id: "energy-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            }, {
+                                id: "weather-y-axis",
+                                position: "right"
+                            }
+                        ]
                     }
                 }
             });
@@ -84,13 +168,14 @@
 
 <br />
 <div id="quick-stats-table">
+    <h6>Energy</h6>
     <table class="table table-hover table-bordered table-sm">
         <tr>
             <th scope="row">
                 Day's Consumption
             </th>
             <td>
-                @Model?.FocusedDaysTotalConsumption kWh
+                @Model?.FocusedDaysTotalConsumption.ToString("N2") kWh
             </td>
         </tr>
         <tr>
@@ -98,7 +183,53 @@
                 @Model?.FocusedDate.ToString("MMMM yyyy")'s Consumption
             </th>
             <td>
-                @Model?.FocusedMonthsTotalConsumption kWh
+                @Model?.FocusedMonthsTotalConsumption.ToString("N2") kWh
+            </td>
+        </tr>
+    </table>
+
+    <h6>Weather</h6>
+    <table class="table table-hover table-bordered table-sm">
+        <tr>
+            <th scope="col">
+
+            </th>
+            <th scope="col">
+                Highest
+            </th>
+            <th scope="col">
+                Average
+            </th>
+            <th scope="col">
+                Lowest
+            </th>
+        </tr>
+        <tr>
+            <th scope="row">
+                Temperature
+            </th>
+            <td>
+                @Model?.FocusedDaysHighestTemperature °F
+            </td>
+            <td>
+                @Model?.FocusedDaysAverageTemperature.ToString("N2") °F
+            </td>
+            <td>
+                @Model?.FocusedDaysLowestTemperature °F
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Humidity
+            </th>
+            <td>
+                @Model?.FocusedDaysHighestHumidity.ToString("P0")
+            </td>
+            <td>
+                @Model?.FocusedDaysAverageHumidity.ToString("P0")
+            </td>
+            <td>
+                @Model?.FocusedDaysLowestHumidity.ToString("P0")
             </td>
         </tr>
     </table>
@@ -107,6 +238,7 @@
 <div id="focused-hour-consumption">
     <br />
     <h3>Consumption at @Model?.FocusedDate.ToString("h:mm tt")</h3>
+    <h6>Temperature: @Model?.FocusedHoursTemperature °F, Humidity: @Model?.FocusedHoursHumidity.ToString("P0")</h6>
     <canvas id="focused-hour-consumption-chart" height="100"></canvas>
 </div>
 

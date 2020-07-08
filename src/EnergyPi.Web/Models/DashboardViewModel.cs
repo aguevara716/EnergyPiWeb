@@ -5,6 +5,7 @@ namespace EnergyPi.Web.Models
 {
     public class DashboardViewModel
     {
+        /*Energy Logs*/
         // today
         public DateTime LastBroadcastTimestamp { get; set; }
         public decimal TodaysTotalConsumption { get; set; }
@@ -16,5 +17,12 @@ namespace EnergyPi.Web.Models
         public decimal ThisMonthsEstimatedTotalConsumption { get; set; }
         public Dictionary<DateTime, Decimal?> ThisMonthsDailyConsumption { get; set; }
 
+        /*Weather Logs*/
+        public decimal LastTemperatureReading { get; set; }
+        public decimal LastHumidityReading { get; set; }
+        public Dictionary<DateTime, Decimal?> TodaysTemperatureReadings { get; set; }
+        public Dictionary<DateTime, Decimal?> ThisMonthsDailyAverageTemperatureReadings { get; set; }
+        public Dictionary<DateTime, Decimal?> ThisMonthsDailyHighTemperatureReadings { get; set; }
+        public Dictionary<DateTime, Decimal?> ThisMonthsDailyLowTemperatureReadings { get; set; }
     }
 }

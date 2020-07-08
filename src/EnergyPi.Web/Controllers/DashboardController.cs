@@ -14,13 +14,16 @@ namespace EnergyPi.Web.Controllers
         // Dependencies
         private readonly IDashboardViewModelBuilder _dashboardViewModelBuilder;
         private readonly IEnergyLogsDataService _energyLogsDataService;
+        private readonly IWeatherLogsDataService _weatherLogsDataService;
 
         // Constructors
         public DashboardController(IDashboardViewModelBuilder dashboardViewModelBuilder,
-                                   IEnergyLogsDataService energyLogsDataService)
+                                   IEnergyLogsDataService energyLogsDataService,
+                                   IWeatherLogsDataService weatherLogsDataService)
         {
             _dashboardViewModelBuilder = dashboardViewModelBuilder;
             _energyLogsDataService = energyLogsDataService;
+            _weatherLogsDataService = weatherLogsDataService;
         }
 
         // Private Methods
@@ -30,8 +33,9 @@ namespace EnergyPi.Web.Controllers
             var endDate = DateTimeExtensions.GetFirstDayOfNextMonth(DateTime.Now);
 
             var currentMonthsEnergyLogs = _energyLogsDataService.GetRecordsForDateRange(startDate, endDate);
+            var currentMonthsWeatherLogs = _weatherLogsDataService.GetRecordsForDateRange(startDate, endDate);
 
-            var dashboardViewModel = _dashboardViewModelBuilder.BuildDashboardViewModel(currentMonthsEnergyLogs);
+            var dashboardViewModel = _dashboardViewModelBuilder.BuildDashboardViewModel(currentMonthsEnergyLogs, currentMonthsWeatherLogs);
             return dashboardViewModel;
         }
 

@@ -9,13 +9,13 @@ namespace EnergyPi.Web.Builders
 {
     public interface IDashboardViewModelBuilder
     {
-        DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs);
-        DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs);
+        DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs);
+        DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs);
     }
 
     public class DashboardViewModelBuilder : IDashboardViewModelBuilder
     {
-        // Private Methods
+        // EnergyLogs Methods
         private DateTime GetLastBroadcastTimestamp(IList<EnergyLogs> energyLogs)
         {
             var lastBroadcast = energyLogs.OrderByDescending(el => el.Timestamp).FirstOrDefault();
@@ -88,30 +88,90 @@ namespace EnergyPi.Web.Builders
             return totalConsumption;
         }
 
-        // Public Methods
-        public DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs)
+        // WeatherLogs Methods
+        private decimal GetLastHumidityReading(IList<WeatherLogs> weatherLogs)
         {
-            var energyLogsList = energyLogs.ToList();
-            return BuildDashboardViewModel(energyLogsList);
+            var lastHumidityReading = weatherLogs.OrderByDescending(wl => wl.Timestamp)
+                                                 .FirstOrDefault()
+                                                 .Humidity
+                                                 .GetValueOrDefault();
+            return lastHumidityReading;
         }
 
-        public DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs)
+        private decimal GetLastTemperatureReading(IList<WeatherLogs> weatherLogs)
+        {
+            var lastTemperatureReading = weatherLogs.OrderByDescending(wl => wl.Timestamp)
+                                                    .FirstOrDefault()
+                                                    .TemperatureFahrenheit
+                                                    .GetValueOrDefault();
+            return lastTemperatureReading;
+        }
+
+        private Dictionary<DateTime, Decimal?> GetThisMonthsDailyAverageTemperatureReadings(IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, HighestTemperature = g.ToList().Average(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.HighestTemperature);
+            return results;
+        }
+
+        private Dictionary<DateTime, Decimal?> GetThisMonthsDailyHighTemperatureReadings(IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, HighestTemperature = g.ToList().Max(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.HighestTemperature);
+            return results;
+        }
+
+        private Dictionary<DateTime, Decimal?> GetThisMonthsDailyLowTemperatureReadings(IList<WeatherLogs> weatherLogs)
+        {
+            var results = weatherLogs.GroupBy(wl => wl.Timestamp.Date)
+                                     .Select(g => new { Timestamp = g.Key, HighestTemperature = g.ToList().Min(wl => wl.TemperatureFahrenheit) })
+                                     .ToDictionary(a => a.Timestamp, a => a.HighestTemperature);
+            return results;
+        }
+
+        private Dictionary<DateTime, Decimal?> GetTodaysWeatherReadings(IList<WeatherLogs> weatherLogs)
+        {
+            var records = weatherLogs.Where(wl => wl.Timestamp.Date == DateTime.Now.Date)
+                                     .ToDictionary(wl => wl.Timestamp, wl => wl.TemperatureFahrenheit);
+            return records;
+        }
+
+        // Public Methods
+        public DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs)
+        {
+            var energyLogsList = energyLogs.ToList();
+            var weatherLogsList = weatherLogs.ToList();
+            return BuildDashboardViewModel(energyLogsList, weatherLogsList);
+        }
+
+        public DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs)
         {
             if (energyLogs.IsNullOrEmpty())
                 return null;
 
             var dvm = new DashboardViewModel
             {
+                // Energy Logs
                 LastBroadcastTimestamp = GetLastBroadcastTimestamp(energyLogs),
                 PastHourConsumption = GetPastHourConsumption(energyLogs),
                 ThisMonthsDailyConsumption = GetThisMonthsDailyConsumption(energyLogs),
                 ThisMonthsEstimatedTotalConsumption = GetThisMonthsEstimatedConsumption(energyLogs),
                 ThisMonthsTotalConsumption = GetThisMonthsTotalConsumption(energyLogs),
                 TodaysHourlyConsumption = GetTodaysHourlyConsumption(energyLogs),
-                TodaysTotalConsumption = GetTodaysTotalConsumption(energyLogs)
+                TodaysTotalConsumption = GetTodaysTotalConsumption(energyLogs),
+                // Weather Logs
+                LastHumidityReading = GetLastHumidityReading(weatherLogs),
+                LastTemperatureReading = GetLastTemperatureReading(weatherLogs),
+                ThisMonthsDailyAverageTemperatureReadings = GetThisMonthsDailyAverageTemperatureReadings(weatherLogs),
+                ThisMonthsDailyHighTemperatureReadings = GetThisMonthsDailyHighTemperatureReadings(weatherLogs),
+                ThisMonthsDailyLowTemperatureReadings = GetThisMonthsDailyLowTemperatureReadings(weatherLogs),
+                TodaysTemperatureReadings = GetTodaysWeatherReadings(weatherLogs)
             };
 
             return dvm;
         }
+
     }
 }

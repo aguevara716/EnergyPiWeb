@@ -7,63 +7,162 @@
 
 @section Scripts {
     <script>
-        function buildPastHourConsumptionChart() {
+        // past hour consumption
+        (function () {
+            var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ];
+            var energyConsumptionDataPoints = [ @String.Join(", ", Model.PastHourConsumption.Values) ];
+
             var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
             var pastHourChart = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
+                    labels: timestampDataPoints,
                     datasets: [{
-                        data: [ @String.Join(", ", Model.PastHourConsumption.Values) ]
+                        label: "Energy Consumption (kWh)",
+                        data: energyConsumptionDataPoints,
+                        lineTension: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                min: 0
+                            }
+                        }]
                     }
-                    ]
                 }
             });
-        }
+        })();
 
-        function buildTodaysHourlyConsumptionChart() {
+        // today's hourly consumption
+        (function () {
+            var hourlyDataPoints = [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ];
+            var hourlyDateTimeDataPoints = [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k}\""))) ];
+            var energyConsumptionDataPoints = [ @String.Join(", ", Model.TodaysHourlyConsumption.Values) ];
+            var temperatureDataPoints = [ @Html.Raw(String.Join(",", Model.TodaysTemperatureReadings.Values)) ];
+
             var ctx = document.getElementById("todays-hourly-consumption-chart").getContext("2d");
             var todaysHourlyChart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString("hh:mm tt")}\""))) ],
-                    datasets: [{
-                        data: [ @String.Join(", ", Model.TodaysHourlyConsumption.Values) ]
-                    }]
+                    labels: hourlyDataPoints,
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "energy-y-axis",
+                            data: energyConsumptionDataPoints
+                        }, {
+                            label: "Weather (°F)",
+                            yAxisID: "weather-y-axis",
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000",
+                            data: temperatureDataPoints,
+                            lineTension: 0
+                        }
+                    ]
                 },
                 options: {
                     onClick: function (c, i) {
                         var index = i[0]._index;
-                        const keys = [ @Html.Raw(String.Join(", ", Model.TodaysHourlyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
-                        window.location.href = "/History/Index?date=" + keys[index];
+                        window.location.href = "/History/Index?date=" + hourlyDateTimeDataPoints[index];
+                    },
+                    scales: {
+                        yAxes: [
+                            {
+                                id: "energy-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            },
+                            {
+                                id: "weather-y-axis",
+                                position: "right"
+                            }
+                        ]
                     }
                 }
             });
-        }
+        })();
 
-        function buildThisMonthsConsumptionChart() {
+        // this month's consumption
+        (function () {
+            var dateTimeDataPoints = [ @Html.Raw(String.Join(",", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k}\""))) ];
+            var dailyDataPoints = [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ];
+            var energyConsumptionDataPoints = [ @String.Join(", ", Model.ThisMonthsDailyConsumption.Values) ];
+            var highTemperatureDataPoints = [ @Html.Raw(String.Join(",", Model.ThisMonthsDailyHighTemperatureReadings.Values)) ];
+            var averageTemperatureDataPoints = [ @Html.Raw(String.Join(",", Model.ThisMonthsDailyAverageTemperatureReadings.Values)) ];
+            var lowTemperatureDataPoints = [ @Html.Raw(String.Join(",", Model.ThisMonthsDailyLowTemperatureReadings.Values)) ];
+
             var ctx = document.getElementById("this-months-consumption-chart").getContext("2d");
             var thisMonthsDailyChart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString("MMMM d")}\""))) ],
-                    datasets: [{
-                        data: [ @String.Join(", ", Model.ThisMonthsDailyConsumption.Values) ]
-                    }]
+                    labels: dailyDataPoints,
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "energy-y-axis",
+                            data: energyConsumptionDataPoints
+                        },
+                        {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000",
+                            label: "High Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: highTemperatureDataPoints,
+                            lineTension: 0
+                        },
+                        {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#E5E500",
+                            borderColor: "#E5E500",
+                            label: "Average Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: averageTemperatureDataPoints,
+                            lineTension: 0
+                        },
+                        {
+                            type: "line",
+                            fill: false,
+                            backgroundColor: "#0000FF",
+                            borderColor: "#0000FF",
+                            label: "Low Temperature (°F)",
+                            yAxisID: "weather-y-axis",
+                            data: lowTemperatureDataPoints,
+                            lineTension: 0
+                        }
+                    ]
                 },
                 options: {
                     onClick: function (c, i) {
                         var index = i[0]._index;
-                        const keys = [ @Html.Raw(String.Join(", ", Model.ThisMonthsDailyConsumption.Keys.Select(k => $"\"{k.ToString()}\""))) ];
-                        window.location.href = "/History/Index?date=" + keys[index];
+                        window.location.href = "/History/Index?date=" + dateTimeDataPoints[index];
+                    },
+                    scales: {
+                        yAxes: [
+                            {
+                                id: "energy-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            },
+                            {
+                                id: "weather-y-axis",
+                                position: "right"
+                            }
+                        ]
                     }
                 }
             });
-        }
-
-        buildPastHourConsumptionChart();
-        buildTodaysHourlyConsumptionChart();
-        buildThisMonthsConsumptionChart();
+        })();
     </script>
 }
 
@@ -82,7 +181,23 @@
                 Today's Consumption
             </th>
             <td>
-                @Model?.TodaysTotalConsumption kWh
+                @Model?.TodaysTotalConsumption.ToString("N2") kWh
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Current Temperature
+            </th>
+            <td>
+                @Model?.LastTemperatureReading° F
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Current Humidity
+            </th>
+            <td>
+                @Model?.LastHumidityReading.ToString("P0")
             </td>
         </tr>
         <tr>
@@ -90,7 +205,7 @@
                 @DateTime.Now.ToString("MMMMM")'s Consumption
             </th>
             <td>
-                @Model?.ThisMonthsTotalConsumption kWh
+                @Model?.ThisMonthsTotalConsumption.ToString("N2") kWh
             </td>
         </tr>
         <tr>

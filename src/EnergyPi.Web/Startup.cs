@@ -44,6 +44,7 @@ namespace EnergyPi.Web
 
             // data services
             services.AddTransient<IEnergyLogsDataService, EnergyLogsDataService>();
+            services.AddTransient<IWeatherLogsDataService, WeatherLogsDataService>();
 
             // builders
             services.AddTransient<IDashboardViewModelBuilder, DashboardViewModelBuilder>();
