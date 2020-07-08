@@ -181,7 +181,7 @@
                 Today's Consumption
             </th>
             <td>
-                @Model?.TodaysTotalConsumption kWh
+                @Model?.TodaysTotalConsumption.ToString("N2") kWh
             </td>
         </tr>
         <tr>
@@ -205,7 +205,7 @@
                 @DateTime.Now.ToString("MMMMM")'s Consumption
             </th>
             <td>
-                @Model?.ThisMonthsTotalConsumption kWh
+                @Model?.ThisMonthsTotalConsumption.ToString("N2") kWh
             </td>
         </tr>
         <tr>
