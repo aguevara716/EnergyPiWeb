@@ -51,6 +51,14 @@ namespace EnergyPi.Web.Builders
             return focusedHourConsumption;
         }
 
+        private Dictionary<DateTime, Decimal> GetFocusedHourPowerDraw(DateTime date, IList<EnergyLogs> energyLogs)
+        {
+            var focusedHourPowerDraw = energyLogs.Where(el => el.Timestamp >= date && el.Timestamp <= date.AddHours(1))
+                                                 .Select(el => new { el.Timestamp, el.PowerDraw })
+                                                 .ToDictionary(a => a.Timestamp, a => a.PowerDraw.GetValueOrDefault());
+            return focusedHourPowerDraw;
+        }
+
         private decimal GetFocusedMonthsTotalConsumption(DateTime date, IList<EnergyLogs> energyLogs)
         {
             var totalConsumption = energyLogs.Sum(el => el.Delta).GetValueOrDefault();
@@ -196,6 +204,7 @@ namespace EnergyPi.Web.Builders
                 FocusedDaysHourlyConsumption = GetFocusedDaysHourlyConsumption(date, energyLogs),
                 FocusedDaysTotalConsumption = GetFocusedDaysTotalConsumption(date, energyLogs),
                 FocusedHourConsumption = GetFocusedHourConsumption(date, energyLogs),
+                FocusedHourPowerDraw = GetFocusedHourPowerDraw(date, energyLogs),
                 FocusedMonthsTotalConsumption = GetFocusedMonthsTotalConsumption(date, energyLogs),
                 FocusMonthsDailyConsumption = GetFocusedMonthsDailyConsumption(date, energyLogs),
 

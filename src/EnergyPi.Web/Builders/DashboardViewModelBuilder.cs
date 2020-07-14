@@ -22,12 +22,27 @@ namespace EnergyPi.Web.Builders
             return lastBroadcast.Timestamp;
         }
 
+        private decimal GetLatestPowerDraw(IList<EnergyLogs> energyLogs)
+        {
+            var latestRecord = energyLogs.OrderByDescending(el => el.Timestamp)
+                                         .FirstOrDefault();
+            return latestRecord.PowerDraw.GetValueOrDefault();
+        }
+
         private Dictionary<DateTime, Decimal> GetPastHourConsumption(IList<EnergyLogs> energyLogs)
         {
             var pastHourConsumption = energyLogs.Where(el => el.Timestamp < DateTime.Now && el.Timestamp >= DateTime.Now.AddHours(-1))
                                                 .Select(el => new { el.Timestamp, el.Delta })
                                                 .ToDictionary(a => a.Timestamp, a => a.Delta.GetValueOrDefault());
             return pastHourConsumption;
+        }
+
+        private Dictionary<DateTime, Decimal?> GetPastHourPowerDraw(IList<EnergyLogs> energyLogs)
+        {
+            var pastHourPowerDraw = energyLogs.Where(el => el.Timestamp >= DateTime.Now.AddHours(-1) && el.Timestamp < DateTime.Now)
+                                              .Select(el => new { el.Timestamp, el.PowerDraw })
+                                              .ToDictionary(a => a.Timestamp, a => a.PowerDraw);
+            return pastHourPowerDraw;
         }
 
         private Dictionary<DateTime, Decimal?> GetThisMonthsDailyConsumption(IList<EnergyLogs> energyLogs)
@@ -155,7 +170,9 @@ namespace EnergyPi.Web.Builders
             {
                 // Energy Logs
                 LastBroadcastTimestamp = GetLastBroadcastTimestamp(energyLogs),
+                LatestPowerDraw = GetLatestPowerDraw(energyLogs),
                 PastHourConsumption = GetPastHourConsumption(energyLogs),
+                PastHourPowerDraw = GetPastHourPowerDraw(energyLogs),
                 ThisMonthsDailyConsumption = GetThisMonthsDailyConsumption(energyLogs),
                 ThisMonthsEstimatedTotalConsumption = GetThisMonthsEstimatedConsumption(energyLogs),
                 ThisMonthsTotalConsumption = GetThisMonthsTotalConsumption(energyLogs),
