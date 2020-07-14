@@ -16,5 +16,6 @@ namespace EnergyPi.Web.Entities
         public DateTime Timestamp { get; set; }
         public decimal? TotalConsumption { get; set; }
         public decimal? Delta { get; set; }
+        public decimal? PowerDraw { get; set; }
     }
 }

@@ -37,11 +37,13 @@ namespace EnergyPi.Web.Data
 
                 entity.Property(e => e.Delta).HasColumnType("decimal(12,2)");
 
+                entity.Property(e => e.PowerDraw).HasColumnType("decimal(12,2)");
+
                 entity.Property(e => e.Timestamp).HasColumnType("datetime");
 
                 entity.Property(e => e.TotalConsumption).HasColumnType("decimal(12,2)");
             });
-            
+
             modelBuilder.Entity<WeatherLogs>(entity =>
             {
                 entity.HasKey(e => e.WeatherLogId)
