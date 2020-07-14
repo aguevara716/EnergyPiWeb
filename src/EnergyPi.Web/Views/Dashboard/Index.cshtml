@@ -7,6 +7,34 @@
 
 @section Scripts {
     <script>
+        // past hour power draw
+        (function () {
+            var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourPowerDraw.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ];
+            var powerDrawDataPoints = [ @String.Join(", ", Model.PastHourPowerDraw.Values) ];
+
+            var ctx = document.getElementById("past-hour-power-draw-chart").getContext("2d");
+            var pastHourChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: timestampDataPoints,
+                    datasets: [{
+                        label: "Power Draw (kW)",
+                        data: powerDrawDataPoints,
+                        lineTension: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                min: 0
+                            }
+                        }]
+                    }
+                }
+            });
+        })();
+
         // past hour consumption
         (function () {
             var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ];
@@ -178,26 +206,18 @@
     <table class="table table-hover table-bordered table-sm">
         <tr>
             <th scope="row">
+                Latest Power Draw
+            </th>
+            <td>
+                @Model?.LatestPowerDraw.ToString("N2") kW
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
                 Today's Consumption
             </th>
             <td>
                 @Model?.TodaysTotalConsumption.ToString("N2") kWh
-            </td>
-        </tr>
-        <tr>
-            <th scope="row">
-                Current Temperature
-            </th>
-            <td>
-                @Model?.LastTemperatureReading° F
-            </td>
-        </tr>
-        <tr>
-            <th scope="row">
-                Current Humidity
-            </th>
-            <td>
-                @Model?.LastHumidityReading.ToString("P0")
             </td>
         </tr>
         <tr>
@@ -216,7 +236,29 @@
                 @Model?.ThisMonthsEstimatedTotalConsumption.ToString("N2") kWh
             </td>
         </tr>
+        <tr>
+            <th scope="row">
+                Current Temperature
+            </th>
+            <td>
+                @Model?.LastTemperatureReading° F
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                Current Humidity
+            </th>
+            <td>
+                @Model?.LastHumidityReading.ToString("P0")
+            </td>
+        </tr>
     </table>
+</div>
+
+<div id="past-hour-power-draw">
+    <br />
+    <h3>Past Hour's Power Draw:</h3>
+    <canvas id="past-hour-power-draw-chart" height="100"></canvas>
 </div>
 
 <div id="past-hour-consumption">
