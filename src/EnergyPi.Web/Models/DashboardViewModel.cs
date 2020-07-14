@@ -11,6 +11,8 @@ namespace EnergyPi.Web.Models
         public decimal TodaysTotalConsumption { get; set; }
         public Dictionary<DateTime, Decimal?> TodaysHourlyConsumption { get; set; }
         public Dictionary<DateTime, Decimal> PastHourConsumption { get; set; }
+        public decimal LatestPowerDraw { get; set; }
+        public Dictionary<DateTime, Decimal?> PastHourPowerDraw { get; set; }
 
         // this month
         public decimal ThisMonthsTotalConsumption { get; set; }
