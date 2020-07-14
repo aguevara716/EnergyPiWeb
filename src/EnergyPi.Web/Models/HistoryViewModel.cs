@@ -11,6 +11,7 @@ namespace EnergyPi.Web.Models
         public decimal FocusedDaysTotalConsumption { get; set; }
         public Dictionary<DateTime, Decimal?> FocusedDaysHourlyConsumption { get; set; }
         public Dictionary<DateTime, Decimal> FocusedHourConsumption { get; set; }
+        public Dictionary<DateTime, Decimal> FocusedHourPowerDraw { get; set; }
 
         // Month
         public decimal FocusedMonthsTotalConsumption { get; set; }
