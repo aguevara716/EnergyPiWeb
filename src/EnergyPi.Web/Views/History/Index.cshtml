@@ -261,7 +261,7 @@
 
 <div id="focused-hour-consumption">
     <br />
-    <h3>Consumption at @Model?.FocusedDate.ToString("h:mm tt")</h3>
+    <h3>Consumption at @Model?.FocusedDate.ToString("h:mm tt"): @Model?.FocusedHourConsumption.Values.Sum() kWh</h3>
     <h6>Temperature: @Model?.FocusedHoursTemperature °F, Humidity: @Model?.FocusedHoursHumidity.ToString("P0")</h6>
     <canvas id="focused-hour-consumption-chart" height="100"></canvas>
 </div>
