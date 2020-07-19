@@ -6,34 +6,53 @@
 
 @section Scripts {
     <script>
-        // focused hour's consumption
+        // focused hour's power
         (function () {
-            var ctx = document.getElementById("focused-hour-consumption-chart").getContext("2d");
+            var ctx = document.getElementById("focused-hour-power-chart").getContext("2d");
             var focusedHourChart = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: [ @Html.Raw(String.Join(", ", Model.FocusedHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
-                    datasets: [{
-                        label: "Energy Consumption (kWh)",
-                        data: [ @String.Join(",", Model.FocusedHourConsumption.Values) ],
-                        lineTension: 0
-                    }]
-                }
-            });
-        })();
-
-        // focused hour's power draw
-        (function () {
-            var ctx = document.getElementById("focused-hour-power-draw-chart").getContext("2d");
-            var focusedHourChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: [ @Html.Raw(String.Join(", ", Model.FocusedHourPowerDraw.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ],
-                    datasets: [{
-                        label: "Power Draw (kW)",
-                        data: [ @String.Join(",", Model.FocusedHourPowerDraw.Values) ],
-                        lineTension: 0
-                    }]
+                    labels: [ @Html.Raw(String.Join(", ", Model.FocusedHourConsumption.Keys.Select(k => $"\"{k}\""))) ],
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "kwh-y-axis",
+                            data: [ @String.Join(",", Model.FocusedHourConsumption.Values) ],
+                            lineTension: 0,
+                            fill: false
+                        }, {
+                            label: "Power Draw (kW)",
+                            yAxisID: "kw-y-axis",
+                            data: [@String.Join(",", Model.FocusedHourPowerDraw.Values)],
+                            lineTension: 0,
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000"
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: "time",
+                            distribution: "linear"
+                        }],
+                        yAxes: [
+                            {
+                                id: "kwh-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            }, {
+                                id: "kw-y-axis",
+                                position: "right",
+                                ticks: {
+                                    min: 0
+                                }
+                            }
+                        ]
+                    }
                 }
             });
         })();
@@ -252,18 +271,12 @@
     </table>
 </div>
 
-<div id="focused-hour-power-draw">
+<div id="focused-hour-power">
     <br />
-    <h3>Power Draw at @Model?.FocusedDate.ToString("h:mm tt")</h3>
+    <h3>Power Consumption &amp; Power Draw at @Model?.FocusedDate.ToString("h:mm tt")</h3>
     <h6>Temperature: @Model?.FocusedHoursTemperature °F, Humidity: @Model?.FocusedHoursHumidity.ToString("P0")</h6>
-    <canvas id="focused-hour-power-draw-chart" height="100"></canvas>
-</div>
-
-<div id="focused-hour-consumption">
-    <br />
-    <h3>Consumption at @Model?.FocusedDate.ToString("h:mm tt"): @Model?.FocusedHourConsumption.Values.Sum() kWh</h3>
-    <h6>Temperature: @Model?.FocusedHoursTemperature °F, Humidity: @Model?.FocusedHoursHumidity.ToString("P0")</h6>
-    <canvas id="focused-hour-consumption-chart" height="100"></canvas>
+    <h6>Consumption: @Model?.FocusedHourConsumption.Values.Sum() kWh</h6>
+    <canvas id="focused-hour-power-chart" height="100"></canvas>
 </div>
 
 <div id="focused-days-hourly-consumption">
