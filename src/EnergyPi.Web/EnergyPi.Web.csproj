@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Builders\" />
     <Folder Include="Views\History\" />
   </ItemGroup>
 </Project>

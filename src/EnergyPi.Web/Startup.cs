@@ -47,7 +47,7 @@ namespace EnergyPi.Web
             services.AddTransient<IWeatherLogsDataService, WeatherLogsDataService>();
 
             // builders
-            services.AddTransient<IDashboardViewModelBuilder, DashboardViewModelBuilder>();
+            services.AddTransient<ITodayViewModelBuilder, TodayViewModelBuilder>();
             services.AddTransient<IHistoryViewModelBuilder, HistoryViewModelBuilder>();
 
             return services;

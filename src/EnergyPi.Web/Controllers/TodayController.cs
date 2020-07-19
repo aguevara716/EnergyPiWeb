@@ -9,25 +9,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace EnergyPi.Web.Controllers
 {
     [Authorize]
-    public class DashboardController : Controller
+    public class TodayController : Controller
     {
         // Dependencies
-        private readonly IDashboardViewModelBuilder _dashboardViewModelBuilder;
+        private readonly ITodayViewModelBuilder _todayViewModelBuilder;
         private readonly IEnergyLogsDataService _energyLogsDataService;
         private readonly IWeatherLogsDataService _weatherLogsDataService;
 
         // Constructors
-        public DashboardController(IDashboardViewModelBuilder dashboardViewModelBuilder,
-                                   IEnergyLogsDataService energyLogsDataService,
-                                   IWeatherLogsDataService weatherLogsDataService)
+        public TodayController(ITodayViewModelBuilder todayViewModelBuilder,
+                               IEnergyLogsDataService energyLogsDataService,
+                               IWeatherLogsDataService weatherLogsDataService)
         {
-            _dashboardViewModelBuilder = dashboardViewModelBuilder;
+            _todayViewModelBuilder = todayViewModelBuilder;
             _energyLogsDataService = energyLogsDataService;
             _weatherLogsDataService = weatherLogsDataService;
         }
 
         // Private Methods
-        private DashboardViewModel GetDashboardViewModelInternal()
+        private TodayViewModel GetTodayViewModelInternal()
         {
             var startDate = DateTimeExtensions.GetFirstDayOfMonth(DateTime.Now);
             var endDate = DateTimeExtensions.GetFirstDayOfNextMonth(DateTime.Now);
@@ -35,23 +35,23 @@ namespace EnergyPi.Web.Controllers
             var currentMonthsEnergyLogs = _energyLogsDataService.GetRecordsForDateRange(startDate, endDate);
             var currentMonthsWeatherLogs = _weatherLogsDataService.GetRecordsForDateRange(startDate, endDate);
 
-            var dashboardViewModel = _dashboardViewModelBuilder.BuildDashboardViewModel(currentMonthsEnergyLogs, currentMonthsWeatherLogs);
-            return dashboardViewModel;
+            var todayViewModel = _todayViewModelBuilder.BuildTodayViewModel(currentMonthsEnergyLogs, currentMonthsWeatherLogs);
+            return todayViewModel;
         }
 
         // View Methods
         public IActionResult Index()
         {
-            var dashboardViewModel = GetDashboardViewModelInternal();
-            return View(dashboardViewModel);
+            var todayViewModel = GetTodayViewModelInternal();
+            return View(todayViewModel);
         }
 
         // API Methods
         [HttpGet]
-        public JsonResult GetDashboardViewModel()
+        public JsonResult GetTodayViewModel()
         {
-            var dashboardViewModel = GetDashboardViewModelInternal();
-            return Json(dashboardViewModel);
+            var todayViewModel = GetTodayViewModelInternal();
+            return Json(todayViewModel);
         }
 
     }
