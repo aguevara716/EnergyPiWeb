@@ -19,9 +19,9 @@ namespace EnergyPi.Web.Controllers
 
         public IActionResult Index()
         {
-            // TODO figure out why this redirect doesn't invoke DashboardController.Index()
+            // TODO figure out why this redirect doesn't invoke TodayController.Index()
             //if (_signInManager.IsSignedIn(User))
-            //    return View("~/Views/Dashboard/Index.cshtml");
+            //    return View("~/Views/Today/Index.cshtml");
             //else
             return View();
         }
