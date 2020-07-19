@@ -7,13 +7,13 @@ using EnergyPi.Web.Models;
 
 namespace EnergyPi.Web.Builders
 {
-    public interface IDashboardViewModelBuilder
+    public interface ITodayViewModelBuilder
     {
-        DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs);
-        DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs);
+        TodayViewModel BuildTodayViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs);
+        TodayViewModel BuildTodayViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs);
     }
 
-    public class DashboardViewModelBuilder : IDashboardViewModelBuilder
+    public class TodayViewModelBuilder : ITodayViewModelBuilder
     {
         // EnergyLogs Methods
         private DateTime GetLastBroadcastTimestamp(IList<EnergyLogs> energyLogs)
@@ -154,19 +154,19 @@ namespace EnergyPi.Web.Builders
         }
 
         // Public Methods
-        public DashboardViewModel BuildDashboardViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs)
+        public TodayViewModel BuildTodayViewModel(IQueryable<EnergyLogs> energyLogs, IQueryable<WeatherLogs> weatherLogs)
         {
             var energyLogsList = energyLogs.ToList();
             var weatherLogsList = weatherLogs.ToList();
-            return BuildDashboardViewModel(energyLogsList, weatherLogsList);
+            return BuildTodayViewModel(energyLogsList, weatherLogsList);
         }
 
-        public DashboardViewModel BuildDashboardViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs)
+        public TodayViewModel BuildTodayViewModel(IList<EnergyLogs> energyLogs, IList<WeatherLogs> weatherLogs)
         {
             if (energyLogs.IsNullOrEmpty())
                 return null;
 
-            var dvm = new DashboardViewModel
+            var dvm = new TodayViewModel
             {
                 // Energy Logs
                 LastBroadcastTimestamp = GetLastBroadcastTimestamp(energyLogs),
