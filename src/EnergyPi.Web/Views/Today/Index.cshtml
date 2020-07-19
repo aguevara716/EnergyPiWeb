@@ -7,57 +7,58 @@
 
 @section Scripts {
     <script>
-        // past hour power draw
+        // power chart
         (function () {
-            var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourPowerDraw.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ];
+            var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourPowerDraw.Keys.Select(k => $"\"{k}\""))) ];
             var powerDrawDataPoints = [ @String.Join(", ", Model.PastHourPowerDraw.Values) ];
-
-            var ctx = document.getElementById("past-hour-power-draw-chart").getContext("2d");
-            var pastHourChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: timestampDataPoints,
-                    datasets: [{
-                        label: "Power Draw (kW)",
-                        data: powerDrawDataPoints,
-                        lineTension: 0
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                min: 0
-                            }
-                        }]
-                    }
-                }
-            });
-        })();
-
-        // past hour consumption
-        (function () {
-            var timestampDataPoints = [ @Html.Raw(String.Join(", ", Model.PastHourConsumption.Keys.Select(k => $"\"{k.ToString("HH:mm:ss")}\""))) ];
             var energyConsumptionDataPoints = [ @String.Join(", ", Model.PastHourConsumption.Values) ];
 
-            var ctx = document.getElementById("past-hour-consumption-chart").getContext("2d");
-            var pastHourChart = new Chart(ctx, {
+            var ctx = document.getElementById("past-hour-power-chart").getContext("2d");
+            var chart = new Chart(ctx, {
                 type: "line",
                 data: {
                     labels: timestampDataPoints,
-                    datasets: [{
-                        label: "Energy Consumption (kWh)",
-                        data: energyConsumptionDataPoints,
-                        lineTension: 0
-                    }]
+                    datasets: [
+                        {
+                            label: "Energy Consumption (kWh)",
+                            yAxisID: "kwh-y-axis",
+                            data: energyConsumptionDataPoints,
+                            lineTension: 0,
+                            fill: true
+                        },
+                        {
+                            label: "Power Draw (kW)",
+                            yAxisID: "kw-y-axis",
+                            data: powerDrawDataPoints,
+                            lineTension: 0,
+                            fill: false,
+                            backgroundColor: "#FF0000",
+                            borderColor: "#FF0000"
+                        }
+                    ]
                 },
                 options: {
                     scales: {
-                        yAxes: [{
-                            ticks: {
-                                min: 0
+                        xAxes: [{
+                            type: "time",
+                            distribution: "linear"
+                        }],
+                        yAxes: [
+                            {
+                                id: "kwh-y-axis",
+                                position: "left",
+                                ticks: {
+                                    min: 0
+                                }
+                            },
+                            {
+                                id: "kw-y-axis",
+                                position: "right",
+                                ticks: {
+                                    min: 0
+                                }
                             }
-                        }]
+                        ]
                     }
                 }
             });
@@ -255,16 +256,11 @@
     </table>
 </div>
 
-<div id="past-hour-power-draw">
+<div id="past-hour-power">
     <br />
-    <h3>Past Hour's Power Draw:</h3>
-    <canvas id="past-hour-power-draw-chart" height="100"></canvas>
-</div>
-
-<div id="past-hour-consumption">
-    <br />
-    <h3>Past Hour's Consumption: @Model.PastHourConsumption.Sum(kvp => kvp.Value) kWh</h3>
-    <canvas id="past-hour-consumption-chart" height="100"></canvas>
+    <h3>Past Hour's Power Consumption &amp; Power Draw:</h3>
+    <small class="text-muted">Total Consumption: @Model.PastHourConsumption.Sum(kvp => kvp.Value) kWh</small>
+    <canvas id="past-hour-power-chart" height="100"></canvas>
 </div>
 
 <div id="todays-hourly-consumption">
