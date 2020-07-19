@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EnergyPi.Web.Models
 {
-    public class DashboardViewModel
+    public class TodayViewModel
     {
         /*Energy Logs*/
         // today
